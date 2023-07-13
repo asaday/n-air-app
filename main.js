@@ -105,7 +105,7 @@ try {
   });
 }
 
-if (crashHandler) initialize();
+if (crashHandler) initialize(); // try-catchにいれといてもいいけれど
 
 function initialize() {
   const fs = require('fs');
