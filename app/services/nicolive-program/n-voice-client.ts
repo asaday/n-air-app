@@ -8,15 +8,35 @@ import { $t } from 'services/i18n';
 import { sleep } from 'util/sleep';
 import { getNVoicePath, NVoiceClient } from './speech/NVoiceClient';
 import { INVoiceTalker } from './speech/NVoiceSynthesizer';
+import fs from 'fs';
+import net from 'net';
+import { WaveFile } from 'wavefile';
 
 /** play audio from Buffer as wave file.
  * @return .cancel function to stop playing.
  * @return .done promise to wait until playing is completed.
  */
+
+let pipeclient: net.Socket = null;
+
+async function openClient(path: string) {
+  return new Promise((resolve, reject) => {
+    if (pipeclient) {
+      resolve(pipeclient);
+      return;
+    }
+    pipeclient = net.connect(path, () => {
+      console.log('connect');
+      resolve(pipeclient);
+    });
+  });
+}
+
 async function playAudio(
   buffer: Buffer,
   volume: number = 1.0,
 ): Promise<{ cancel: () => void; done: Promise<void> }> {
+  //  fs.writeFileSync('c:\\work\\voice.wav', buffer);
   const url = URL.createObjectURL(new Blob([buffer]));
   let cancel: () => void;
 
@@ -108,40 +128,53 @@ export class NVoiceClientService
       // なにも発音しないときは無視
       return null;
     }
+    try {
+      //@ts-ignore
+      const w = new WaveFile(wave);
+      console.log(w.fmt);
+      w.toBitDepth('16'); //force to 16bit
+      // @ts-ignore
+      const b = w.data.samples;
+      console.log(`try pipe audio ${b.length}`);
+      await openClient('\\\\.\\pipe\\MyNamedPipe');
+      pipeclient.write(b);
+    } catch (e) {
+      console.log(e);
+    }
 
-    return async () => {
-      if (this.speaking) {
-        await this.speaking;
-      }
+    //   return async () => {
+    //     if (this.speaking) {
+    //       await this.speaking;
+    //     }
 
-      const startTime = Date.now();
-      const { cancel, done } = await playAudio(wave, options.volume);
-      let phonemeCancel = false;
-      if (options.phonemeCallback) {
-        const phonemeLoop = async () => {
-          for (const label of labels) {
-            const elapsed = Date.now() - startTime;
-            const start = label.start * 1000;
-            if (start > elapsed) {
-              await sleep(start - elapsed);
-            }
-            if (phonemeCancel) {
-              break;
-            }
-            options.phonemeCallback(label.phoneme);
-          }
-          options.phonemeCallback(''); // done
-        };
-        phonemeLoop();
-      }
-      this.speaking = done;
-      return {
-        cancel: () => {
-          phonemeCancel = true;
-          cancel();
-        },
-        speaking: done,
-      };
-    };
+    //     const startTime = Date.now();
+    //     const { cancel, done } = await playAudio(wave, options.volume);
+    //     let phonemeCancel = false;
+    //     if (options.phonemeCallback) {
+    //       const phonemeLoop = async () => {
+    //         for (const label of labels) {
+    //           const elapsed = Date.now() - startTime;
+    //           const start = label.start * 1000;
+    //           if (start > elapsed) {
+    //             await sleep(start - elapsed);
+    //           }
+    //           if (phonemeCancel) {
+    //             break;
+    //           }
+    //           options.phonemeCallback(label.phoneme);
+    //         }
+    //         options.phonemeCallback(''); // done
+    //       };
+    //       phonemeLoop();
+    //     }
+    //     this.speaking = done;
+    //     return {
+    //       cancel: () => {
+    //         phonemeCancel = true;
+    //         cancel();
+    //       },
+    //       speaking: done,
+    //     };
+    //   };
   }
 }
