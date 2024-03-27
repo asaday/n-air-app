@@ -48,24 +48,24 @@ export async function addSource(t, type, name, closeProps = true) {
   const app = t.context.app;
   console.log(`addsource type=${type} name=${name}`);
 
-  console.log('a1');
+  // console.log('a1');
   await focusMain(t);
   await clickAddSource(t);
   await focusChild(t);
-  console.log('a2');
+  // console.log('a2');
   await app.client.click(`[data-test="${type}"`);
-  console.log('a3');
+  // console.log('a3');
   await app.client.click('[data-test="AddSource"]');
-  console.log('a4');
+  // console.log('a4');
   await app.client.setValue('input', name);
 
-  console.log('a5');
+  // console.log('a5');
   if (await app.client.isExisting('[data-test="Done"]')) {
     await app.client.click('[data-test="Done"]');
   } else {
     await app.client.click('[data-test="AddNewSource"]');
   }
-  console.log('a6');
+  // console.log('a6');
 
   // Close source properties too
   if (closeProps) {
