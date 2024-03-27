@@ -11,8 +11,8 @@ on:
       - README.md
 
 jobs:
-  build:
-    if: github.event_name == 'pull_request'
+  test:
+    # if: github.event_name == 'pull_request'
     runs-on: windows-latest
     steps:
       - name: Checkout code
