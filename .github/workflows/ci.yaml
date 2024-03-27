@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - .github/*
+      - README.md
+  pull_request:
+    paths-ignore:
+      - .github/*
+      - README.md
+
+jobs:
+  build:
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Add npm token to .npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --check-files
+
+      - name: Compile for CI
+        run: yarn compile:ci
+
+      - name: Run unit tests
+        run: yarn test:unit
+
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Add npm token to .npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --check-files
+
+      - name: Compile for CI
+        run: yarn compile:ci
+
+      - name: Run unit tests
+        run: yarn test:unit
+
+  # Add more jobs if needed for additional steps like deployment
