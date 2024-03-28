@@ -29,8 +29,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --check-files
 
-      # - name: Compile for CI
-      #   run: yarn compile:ci
+      - name: Compile for CI
+        run: yarn compile:ci
 
       # - name: Run unit tests
       #   run: yarn test:unit
