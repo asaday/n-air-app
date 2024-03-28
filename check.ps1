@@ -1,3 +1,4 @@
 Get-Location
-Get-ChildItem c:\
+Get-ChildItem \
+Get-ChildItem \Users
 Get-ChildItem c:\Users

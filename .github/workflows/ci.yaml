@@ -24,7 +24,7 @@ jobs:
           node-version: '18.x'
 
       - name: check
-        run: check.ps1
+        run: ./check.ps1
 
       # - name: Add npm token to .npmrc
       #   run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
