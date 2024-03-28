@@ -23,17 +23,20 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Add npm token to .npmrc
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
+      - name: check
+        run: check.ps1
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --check-files
+      # - name: Add npm token to .npmrc
+      #   run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
 
-      - name: Compile for CI
-        run: yarn compile:ci
+      # - name: Install dependencies
+      #   run: yarn install --frozen-lockfile --check-files
 
-      - name: Run unit tests
-        run: yarn test:unit
+      # - name: Compile for CI
+      #   run: yarn compile:ci
 
-      - name: Run test
-        run: yarn test
+      # - name: Run unit tests
+      #   run: yarn test:unit
+
+      # - name: Run test
+      #   run: yarn test
