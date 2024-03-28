@@ -1,3 +1,2 @@
 Get-Location
-Get-ChildItem \
-Get-ChildItem c:\Users -Recurse
+Get-ChildItem -Path $env:APPDATA -Recurse
