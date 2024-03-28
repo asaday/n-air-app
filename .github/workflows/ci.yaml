@@ -38,5 +38,19 @@ jobs:
       - name: Run test
         run: yarn test -m "Main and child window visibility"
 
-      - name: check
-        run: ./check.ps1
+      - name: list
+        shell: pwsh
+        run: |
+          Get-Location
+          Get-ChildItem -Path $env:APPDATA -Recurse -Force
+
+      # - name: Get AppData Files
+      #   shell: pwsh
+      #   run: |
+      #     $appDataFiles = Get-ChildItem -Path $env:APPDATA -File -Recurse | Select-Object -ExpandProperty FullName
+      #     $zipPath = "$env:GITHUB_WORKSPACE/appdata_files.zip"
+      #     Compress-Archive -Path $appDataFiles -DestinationPath $zipPath
+
+      # - name: Display AppData File Contents
+      #   run: |
+      #     cat $env:GITHUB_WORKSPACE/appdata_files.zip

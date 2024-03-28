@@ -1,2 +1,2 @@
 Get-Location
-Get-ChildItem -Path $env:APPDATA -Recurse
+Get-ChildItem -Path $env:APPDATA -Recurse -Force
