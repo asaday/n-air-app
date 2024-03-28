@@ -59,6 +59,8 @@ export async function waitForLoader(t: any) {
 interface ITestRunnerOptions {
   skipOnboarding?: boolean;
   restartAppAfterEachTest?: boolean;
+  noRemove?: boolean;
+  baseDir?: string;
 
   /**
    * Called after cache directory is created but before
@@ -81,6 +83,18 @@ export interface ITestContext {
 
 export type TExecutionContext = ExecutionContext<ITestContext>;
 
+function showFile(path: string) {
+  const a = fs.readFileSync(path, 'utf8');
+  console.log(path);
+  console.log(a);
+}
+
+function showFiles(dir: string) {
+  fs.readdirSync(dir).forEach((file: string) => {
+    showFile(path.join(dir, file));
+  });
+}
+
 export function useSpectron(options: ITestRunnerOptions = {}) {
   options = Object.assign({}, DEFAULT_OPTIONS, options);
   let appIsRunning = false;
@@ -88,7 +102,9 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
   let app: Application;
   let testPassed = false;
   let failMsg = '';
-  const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), 'n-air-test'));
+  const base = options.baseDir ? options.baseDir : os.tmpdir();
+  const cacheDir = fs.mkdtempSync(path.join(base, 'n-air-test'));
+  console.log(`cacheDir ${cacheDir}`);
 
   async function startApp(t: TExecutionContext): Promise<Application> {
     t.context.cacheDir = cacheDir;
@@ -181,7 +197,12 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
     }
     appIsRunning = false;
 
-    if (!clearCache) return;
+    if (options.noRemove) {
+      showFile(`${cacheDir}/nair-client/app.log`);
+      showFiles(`${cacheDir}/nair-client/node-obs/logs`);
+    }
+
+    if (!clearCache || options.noRemove) return;
     await new Promise(resolve => {
       rimraf(context.cacheDir, resolve);
     });
