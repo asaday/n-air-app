@@ -59,7 +59,7 @@ export async function waitForLoader(t: any) {
 interface ITestRunnerOptions {
   skipOnboarding?: boolean;
   restartAppAfterEachTest?: boolean;
-  noRemove?: boolean;
+  showInfo?: boolean;
   baseDir?: string;
 
   /**
@@ -83,16 +83,27 @@ export interface ITestContext {
 
 export type TExecutionContext = ExecutionContext<ITestContext>;
 
-function showFile(path: string) {
-  const a = fs.readFileSync(path, 'utf8');
-  console.log(path);
-  console.log(a);
-}
+function showInfo(cacheDir: string) {
+  function showFile(path: string) {
+    const a = fs.readFileSync(path, 'utf8');
+    console.log(path);
+    console.log(a);
+  }
 
-function showFiles(dir: string) {
-  fs.readdirSync(dir).forEach((file: string) => {
-    showFile(path.join(dir, file));
-  });
+  function showFiles(dir: string) {
+    fs.readdirSync(dir).forEach((file: string) => showFile(path.join(dir, file)));
+  }
+
+  function showDir(dir: string) {
+    fs.readdirSync(dir).forEach((file: string) => console.log(path.join(dir, file)));
+  }
+
+  showFile(path.join(cacheDir, 'nair-client/app.log'));
+  showFiles(path.join(cacheDir, 'nair-client/node-obs/logs'));
+
+  showDir(path.join(__dirname, '../../../../node_modules/obs-studio-node/obs-plugins/64bit'));
+  showDir(path.join(__dirname, '../../../../node_modules/obs-studio-node/obs-plugins/64bit/VVFX'));
+  showDir(path.join(process.env['SystemRoot'], 'system32'));
 }
 
 export function useSpectron(options: ITestRunnerOptions = {}) {
@@ -197,12 +208,11 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
     }
     appIsRunning = false;
 
-    if (options.noRemove) {
-      showFile(`${cacheDir}/nair-client/app.log`);
-      showFiles(`${cacheDir}/nair-client/node-obs/logs`);
+    if (options.showInfo) {
+      showInfo(cacheDir);
     }
 
-    if (!clearCache || options.noRemove) return;
+    if (!clearCache || options.showInfo) return;
     await new Promise(resolve => {
       rimraf(context.cacheDir, resolve);
     });
