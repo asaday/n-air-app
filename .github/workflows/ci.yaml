@@ -18,8 +18,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: msvc
-        uses: ilammy/msvc-dev-cmd@v1
+      # - name: msvc
+      #   uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -30,16 +30,17 @@ jobs:
         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install
+        # --frozen-lockfile --check-files
 
       - name: Compile for CI
         run: yarn compile:ci
 
       # - name: Run unit tests
       #   run: yarn test:unit
-
       - name: Run test
-        run: yarn test -m "Main and child window visibility"
+        run: yarn test -m "rtvc Adding and removing source"
+        #"Main and child window visibility"
 
       - name: list
         shell: pwsh
