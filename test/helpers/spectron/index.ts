@@ -95,7 +95,9 @@ function showInfo(cacheDir: string) {
   }
 
   function showDir(dir: string) {
-    fs.readdirSync(dir).forEach((file: string) => console.log(path.join(dir, file)));
+    console.log(dir);
+    const list = fs.readdirSync(dir);
+    console.log(list.join(' '));
   }
 
   showFile(path.join(cacheDir, 'nair-client/app.log'));
