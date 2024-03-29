@@ -39,7 +39,7 @@ test('rtvc Adding and removing source', async t => {
 });
 
 // CI対応のため一時的に中止
-test.skip('rtvc Check conditions that can be added', async t => {
+test('rtvc Check conditions that can be added', async t => {
   const sourceName = `Example ${sourceType}`;
 
   // add rtvc source

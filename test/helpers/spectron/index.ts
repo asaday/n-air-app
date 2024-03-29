@@ -60,7 +60,7 @@ interface ITestRunnerOptions {
   skipOnboarding?: boolean;
   restartAppAfterEachTest?: boolean;
   showInfo?: boolean;
-  baseDir?: string;
+  showDll?: boolean;
 
   /**
    * Called after cache directory is created but before
@@ -94,14 +94,16 @@ function showInfo(cacheDir: string) {
     fs.readdirSync(dir).forEach((file: string) => showFile(path.join(dir, file)));
   }
 
+  showFile(path.join(cacheDir, 'nair-client/app.log'));
+  showFiles(path.join(cacheDir, 'nair-client/node-obs/logs'));
+}
+
+function showDll() {
   function showDir(dir: string) {
     console.log(dir);
     const list = fs.readdirSync(dir);
     console.log(list.join(' '));
   }
-
-  showFile(path.join(cacheDir, 'nair-client/app.log'));
-  showFiles(path.join(cacheDir, 'nair-client/node-obs/logs'));
 
   showDir(path.join(__dirname, '../../../../node_modules/obs-studio-node/obs-plugins/64bit'));
   showDir(path.join(__dirname, '../../../../node_modules/obs-studio-node/obs-plugins/64bit/VVFX'));
@@ -115,8 +117,7 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
   let app: Application;
   let testPassed = false;
   let failMsg = '';
-  const base = options.baseDir ? options.baseDir : os.tmpdir();
-  const cacheDir = fs.mkdtempSync(path.join(base, 'n-air-test'));
+  const cacheDir = fs.mkdtempSync(path.join(os.tmpdir(), 'n-air-test'));
   console.log(`cacheDir ${cacheDir}`);
 
   async function startApp(t: TExecutionContext): Promise<Application> {
@@ -210,9 +211,8 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
     }
     appIsRunning = false;
 
-    if (options.showInfo) {
-      showInfo(cacheDir);
-    }
+    if (options.showInfo) showInfo(cacheDir);
+    if (options.showDll) showDll();
 
     if (!clearCache || options.showInfo) return;
     await new Promise(resolve => {
