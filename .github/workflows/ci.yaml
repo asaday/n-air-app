@@ -39,7 +39,8 @@ jobs:
       # - name: Run unit tests
       #   run: yarn test:unit
       - name: Run test
-        run: yarn test -m "rtvc Check conditions that can be added"
+        run: yarn test
+        # -m "rtvc Check conditions that can be added"
         #"rtvc Adding and removing source"
         #"Main and child window visibility"
 
