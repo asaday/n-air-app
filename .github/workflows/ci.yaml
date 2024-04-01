@@ -39,15 +39,14 @@ jobs:
       # - name: Run unit tests
       #   run: yarn test:unit
       - name: Run test
-        run: yarn test
-        # -m "rtvc Adding and removing source"
+        run: yarn test -m "rtvc Adding and removing source"
         #"Main and child window visibility"
 
-      - name: list
-        shell: pwsh
-        run: |
-          Get-Location
-          Get-ChildItem -Path $env:APPDATA -Recurse -Force
+      # - name: list
+      #   shell: pwsh
+      #   run: |
+      #     Get-Location
+      #     Get-ChildItem -Path $env:APPDATA -Recurse -Force
 
       # - name: Get AppData Files
       #   shell: pwsh
