@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - .github/*
+      - README.md
+  pull_request:
+    paths-ignore:
+      - .github/*
+      - README.md
+
+jobs:
+  test:
+    # if: github.event_name == 'pull_request'
+    runs-on: windows-2019
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: msvc
+      #   uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: yarn
+
+      - name: Add npm token to .npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.github_token }}" >> $env:USERPROFILE\.npmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --check-files
+
+      - name: Compile for CI
+        run: yarn compile:ci
+
+      # - name: Run unit tests
+      #   run: yarn test:unit
+      - name: Run test
+        run: yarn test
+        # -m "rtvc Check conditions that can be added"
+        #"rtvc Adding and removing source"
+        #"Main and child window visibility"
