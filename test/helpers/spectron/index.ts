@@ -107,13 +107,14 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
       },
       chromeDriverArgs: ['--remote-debugging-port=12209'],
     });
+    console.dir(app);
 
     if (options.beforeAppStartCb) await options.beforeAppStartCb(t);
 
-    await t.context.app.start();
-    console.log('wait start');
-    await sleep(1000 * 3);
-    console.log('wait end');
+    const r = await t.context.app.start();
+
+    console.log('--------------------------r');
+    console.dir(r);
 
     // Disable CSS transitions while running tests to allow for eager test clicks
     const disableTransitionsCode = `
