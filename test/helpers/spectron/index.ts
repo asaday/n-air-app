@@ -111,6 +111,9 @@ export function useSpectron(options: ITestRunnerOptions = {}) {
     if (options.beforeAppStartCb) await options.beforeAppStartCb(t);
 
     await t.context.app.start();
+    console.log('wait start');
+    await sleep(1000 * 3);
+    console.log('wait end');
 
     // Disable CSS transitions while running tests to allow for eager test clicks
     const disableTransitionsCode = `
