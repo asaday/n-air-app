@@ -3,7 +3,7 @@ import { mutation } from '../core/stateful-service';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { $t } from 'services/i18n';
 
-export const SynthesizerIds = ['webSpeech', 'nVoice'] as const;
+export const SynthesizerIds = ['webSpeech', 'nVoice', 'voicevox'] as const;
 export type SynthesizerId = (typeof SynthesizerIds)[number];
 export const SynthesizerSelectors = [...SynthesizerIds, 'ignore'] as const;
 export type SynthesizerSelector = (typeof SynthesizerSelectors)[number];

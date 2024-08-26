@@ -12,6 +12,7 @@ import { NVoiceSynthesizer } from './speech/NVoiceSynthesizer';
 import { WebSpeechSynthesizer } from './speech/WebSpeechSynthesizer';
 import { NicoliveProgramStateService, SynthesizerId, SynthesizerSelector } from './state';
 import { WrappedMessage } from './WrappedChat';
+import { VoicevoxSynthesizer } from './speech/VoicevoxSynthesizer';
 
 export type Speech = {
   text: string;
@@ -24,6 +25,7 @@ export type Speech = {
   nVoice?: {
     maxTime: number;
   };
+  voicevox?: { id: string };
 };
 
 export interface ICommentSynthesizerState {
@@ -37,6 +39,7 @@ export interface ICommentSynthesizerState {
     operator: SynthesizerSelector;
     system: SynthesizerSelector;
   };
+  voicevox: { [selector: string]: { id: string } };
 }
 
 @InitAfter('NicoliveProgramStateService')
@@ -56,6 +59,7 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
       operator: 'nVoice',
       system: 'webSpeech',
     },
+    voicevox: {},
   };
 
   // この数すでにキューに溜まっている場合は破棄してから追加する
@@ -64,12 +68,16 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
   // delegate synth
   webSpeech = new WebSpeechSynthesizer();
   nVoice: NVoiceSynthesizer;
+  voicevox = new VoicevoxSynthesizer();
+
   getSynthesizer(id: SynthesizerId): ISpeechSynthesizer | null {
     switch (id) {
       case 'webSpeech':
         return this.webSpeech;
       case 'nVoice':
         return this.nVoice;
+      case 'voicevox':
+        return this.voicevox;
       default:
         return null;
     }
@@ -143,7 +151,7 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
     if (r === '') {
       return null;
     }
-    return {
+    const speech: Speech = {
       rate: this.state.rate,
       synthesizer,
       volume: this.state.volume,
@@ -155,12 +163,18 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
       },
       text: r,
     };
+
+    if (synthId === 'voicevox') {
+      speech.voicevox = { id: this.state.voicevox[chat.type as string]?.id ?? '1' };
+    }
+
+    return speech;
   }
 
-  makeSimpleTextSpeech(text: string, synthId?: SynthesizerId): Speech | null {
+  makeSimpleTextSpeech(text: string, synthId?: SynthesizerId, type?: string): Speech | null {
     return this.makeSpeech(
       {
-        type: 'normal',
+        type: (type ?? 'normal') as any,
         value: {
           content: text,
         },
@@ -180,11 +194,10 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
     );
   }
 
-  startTestSpeech(text: string, synthId: SynthesizerId) {
-    const speech = this.makeSimpleTextSpeech(text, synthId);
-    if (speech) {
-      this.startSpeakingSimple(speech);
-    }
+  startTestSpeech(text: string, synthId: SynthesizerId, type?: string) {
+    const speech = this.makeSimpleTextSpeech(text, synthId, type);
+    if (!speech) return;
+    this.startSpeakingSimple(speech);
   }
 
   queueToSpeech(
@@ -297,6 +310,16 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
   }
   set system(s: SynthesizerSelector) {
     this.setState({ selector: { ...this.state.selector, system: s } });
+  }
+
+  getVoicevox(selector: string) {
+    return this.state.voicevox[selector] ?? { id: '' };
+  }
+
+  setVoicevox(selector: string, value: { id: string }) {
+    const voicevox = { ...this.state.voicevox, [selector]: value };
+    console.log(voicevox);
+    this.setState({ voicevox });
   }
 
   private setState(partialState: Partial<ICommentSynthesizerState>) {

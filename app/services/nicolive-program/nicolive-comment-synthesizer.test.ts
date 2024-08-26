@@ -52,6 +52,7 @@ const mockedState: ICommentSynthesizerState = {
     operator: 'webSpeech',
     system: 'webSpeech',
   },
+  voicevox: {},
 };
 
 test('makeSpeechText', async () => {

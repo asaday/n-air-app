@@ -110,7 +110,7 @@
             <button
               class="button button--secondary"
               :disabled="!enabled"
-              @click="testSpeechPlay(system)"
+              @click="testSpeechPlay(system, 'system')"
             >
               <i class="icon-speaker"></i>
               読み上げテスト
@@ -129,6 +129,15 @@
               {{ synthName(o.option) }}<span v-if="o.option == systemDefault">（既定）</span>
             </template>
           </multiselect>
+          <div v-if="system === 'voicevox'">
+            VOICEVOX 音声
+            <select v-if="voicevoxList.length" v-model="voicevoxIdForSystem">
+              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
+                {{ item.text }}
+              </option>
+            </select>
+            <span v-else>リストが取得できません</span>
+          </div>
         </div>
       </div>
       <div class="input-container">
@@ -138,7 +147,7 @@
             <button
               class="button button--secondary"
               :disabled="!enabled"
-              @click="testSpeechPlay(normal)"
+              @click="testSpeechPlay(normal, 'normal')"
             >
               <i class="icon-speaker"></i>
               読み上げテスト
@@ -157,6 +166,15 @@
               {{ synthName(o.option) }}<span v-if="o.option == normalDefault">（既定）</span>
             </template>
           </multiselect>
+
+          <div v-if="normal === 'voicevox'">
+            VOICEVOX 音声
+            <select v-model="voicevoxIdForNormal">
+              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
+                {{ item.text }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="input-container">
@@ -166,7 +184,7 @@
             <button
               class="button button--secondary"
               :disabled="!enabled"
-              @click="testSpeechPlay(operator)"
+              @click="testSpeechPlay(operator, 'operator')"
             >
               <i class="icon-speaker"></i>
               読み上げテスト
@@ -185,6 +203,14 @@
               {{ synthName(o.option) }}<span v-if="o.option == operatorDefault">（既定）</span>
             </template>
           </multiselect>
+          <div v-if="operator === 'voicevox'">
+            VOICEVOX 音声
+            <select v-model="voicevoxIdForOperator">
+              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
+                {{ item.text }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -197,10 +223,10 @@
         <div class="input-wrapper">
           Method
           <select v-model="httpRelationMethod">
-            <option value="">---</option>
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
+            <option value="" style="background-color: black">---</option>
+            <option value="GET" style="background-color: black">GET</option>
+            <option value="POST" style="background-color: black">POST</option>
+            <option value="PUT" style="background-color: black">PUT</option>
           </select>
         </div>
         <div class="input-wrapper">URL <input type="text" v-model="httpRelationUrl" /></div>

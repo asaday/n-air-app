@@ -1,4 +1,5 @@
 import { Inject } from 'services/core/injector';
+
 import { NicoliveCommentLocalFilterService } from 'services/nicolive-program/nicolive-comment-local-filter';
 import { NicoliveCommentSynthesizerService } from 'services/nicolive-program/nicolive-comment-synthesizer';
 import {
@@ -8,7 +9,7 @@ import {
   SynthesizerSelectors,
 } from 'services/nicolive-program/state';
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import VueSlider from 'vue-slider-component';
 import Multiselect from 'vue-multiselect';
 import HttpRelation from 'services/nicolive-program/httpRelation';
@@ -32,10 +33,59 @@ export default class CommentSettings extends Vue {
     this.$emit('close');
   }
 
-  async testSpeechPlay(synthId: SynthesizerId) {
+  async testSpeechPlay(synthId: SynthesizerSelector, type?: string) {
     const service = this.nicoliveCommentSynthesizerService;
+    if (synthId === 'ignore') return;
+    service.startTestSpeech('これは読み上げ設定のテスト音声です', synthId, type);
+  }
 
-    service.startTestSpeech('これは読み上げ設定のテスト音声です', synthId);
+  mounted() {
+    this.readVoicevox().then();
+  }
+
+  async readVoicevox() {
+    const list: { id: string; text: string }[] = [];
+
+    try {
+      const json = await (await fetch('http://localhost:50021/speakers')).json();
+      for (const item of json) {
+        const name = item['name'];
+        for (const style of item['styles']) {
+          const id = style['id'];
+          const sn = style['name'];
+          if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
+          list.push({ id, text: `${name} ${sn}` });
+        }
+      }
+      this.voicevoxList = list;
+      this.voicevoxIdForSystem = this.nicoliveCommentSynthesizerService.getVoicevox('system').id;
+      this.voicevoxIdForNormal = this.nicoliveCommentSynthesizerService.getVoicevox('normal').id;
+      this.voicevoxIdForOperator =
+        this.nicoliveCommentSynthesizerService.getVoicevox('operator').id;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  voicevoxList: { id: string; text: string }[] = [];
+
+  voicevoxIdForSystem = '';
+  voicevoxIdForNormal = '';
+  voicevoxIdForOperator = '';
+
+  @Watch(`voicevoxIdForSystem`)
+  onChangeVoicevoxIdForSystem() {
+    this.nicoliveCommentSynthesizerService.setVoicevox('system', { id: this.voicevoxIdForSystem });
+  }
+  @Watch(`voicevoxIdForNormal`)
+  onChangeVoicevoxIdForNormal() {
+    this.nicoliveCommentSynthesizerService.setVoicevox('normal', { id: this.voicevoxIdForNormal });
+  }
+  @Watch(`voicevoxIdForOperator`)
+  onChangeVoicevoxIdForOperator() {
+    this.nicoliveCommentSynthesizerService.setVoicevox('operator', {
+      id: this.voicevoxIdForOperator,
+    });
   }
 
   get enabled(): boolean {
