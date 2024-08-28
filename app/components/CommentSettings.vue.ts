@@ -12,8 +12,13 @@ import Vue from 'vue';
 import { Component, Watch } from 'vue-property-decorator';
 import VueSlider from 'vue-slider-component';
 import Multiselect from 'vue-multiselect';
-import HttpRelation from 'services/nicolive-program/httpRelation';
+import { HttpRelation } from 'services/nicolive-program/httpRelation';
 import * as remote from '@electron/remote';
+
+type MethodObject = {
+  text: string;
+  value: string;
+};
 
 @Component({
   components: {
@@ -190,19 +195,28 @@ export default class CommentSettings extends Vue {
     this.nicoliveCommentLocalFilterService.showAnonymous = v;
   }
 
-  get httpRelationMethod() {
-    return this.nicoliveProgramStateService.state.httpRelation.method;
+  httpRelationMethods: MethodObject[] = [
+    { value: '', text: '---' },
+    { value: 'GET', text: 'GET' },
+    { value: 'POST', text: 'POST' },
+    { value: 'PUT', text: 'PUT' },
+  ];
+
+  get httpRelationMethod(): MethodObject {
+    const value = this.nicoliveProgramStateService.state.httpRelation.method;
+    const obj = this.httpRelationMethods.find(a => a.value === value);
+    return obj ?? this.httpRelationMethods[0];
   }
-  set httpRelationMethod(method: string) {
-    this.nicoliveProgramStateService.updateHttpRelation({ method });
+  set httpRelationMethod(method: MethodObject) {
+    this.nicoliveProgramStateService.updateHttpRelation({ method: method.value });
   }
-  get httpRelationUrl() {
+  get httpRelationUrl(): string {
     return this.nicoliveProgramStateService.state.httpRelation.url;
   }
   set httpRelationUrl(url: string) {
     this.nicoliveProgramStateService.updateHttpRelation({ url });
   }
-  get httpRelationBody() {
+  get httpRelationBody(): string {
     return this.nicoliveProgramStateService.state.httpRelation.body;
   }
   set httpRelationBody(body: string) {

@@ -104,7 +104,7 @@
         </button>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
+        <div class="input-wrapper voice">
           <div class="row input-heading">
             <label for="system-select">システムメッセージ</label>
             <button
@@ -117,6 +117,7 @@
             </button>
           </div>
           <multiselect
+            class="voice"
             id="system-select"
             v-model="system"
             :options="synthIds"
@@ -141,7 +142,7 @@
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
+        <div class="input-wrapper voice">
           <div class="row input-heading">
             <label for="normal-select">視聴者コメント</label>
             <button
@@ -178,7 +179,7 @@
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
+        <div class="input-wrapper voice">
           <div class="row input-heading">
             <label for="operator-select">放送者コメント</label>
             <button
@@ -222,12 +223,15 @@
       <div class="input-container">
         <div class="input-wrapper">
           Method
-          <select v-model="httpRelationMethod">
-            <option value="" style="background-color: black">---</option>
-            <option value="GET" style="background-color: black">GET</option>
-            <option value="POST" style="background-color: black">POST</option>
-            <option value="PUT" style="background-color: black">PUT</option>
-          </select>
+          <multiselect
+            v-model="httpRelationMethod"
+            :options="httpRelationMethods"
+            label="text"
+            trackBy="value"
+            :allow-empty="false"
+            :placeholder="$t('settings.listPlaceholder')"
+          >
+          </multiselect>
         </div>
         <div class="input-wrapper">URL <input type="text" v-model="httpRelationUrl" /></div>
         <div class="input-wrapper">
@@ -245,18 +249,6 @@
 <script lang="ts" src="./CommentSettings.vue.ts"></script>
 <style lang="less" scoped>
 @import url('../styles/index');
-
-select {
-  font-size: @font-size4;
-  color: var(--color-text);
-  background: var(--color-input-bg);
-  border: 1px solid var(--color-border-light);
-
-  &:focus {
-    border-color: var(--color-border-accent);
-    outline: none;
-  }
-}
 
 .section-heading {
   display: flex;
@@ -313,23 +305,25 @@ select {
   }
 }
 
-.multiselect {
-  height: 64px;
-  margin-bottom: 8px;
-}
+.voice {
+  .multiselect {
+    height: 64px;
+    margin-bottom: 8px;
+  }
 
-& /deep/ .multiselect__tags {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px var(--color-border-light);
+  & /deep/ .multiselect__tags {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--color-border-light);
+  }
 
-  [data-type='webSpeech'] & {
+  & /deep/ [data-type='webSpeech'] .multiselect__tags {
     background: url('../../media/images/windows_bg.png') center no-repeat;
     background-size: 100% auto;
   }
 
-  [data-type='nVoice'] & {
+  & /deep/ [data-type='nVoice'] .multiselect__tags {
     background: url('../../media/images/nvoice_bg.png') center no-repeat;
     background-size: 100% auto;
 
@@ -346,31 +340,31 @@ select {
       opacity: 0.9;
     }
   }
-}
 
-& /deep/ .multiselect__select {
-  line-height: 64px;
+  & /deep/ .multiselect__select {
+    line-height: 64px;
 
-  &::before {
-    right: 16px;
+    &::before {
+      right: 16px;
+      color: var(--color-text-light);
+    }
+  }
+
+  & /deep/ .multiselect__input {
+    height: 64px;
+    padding: 0 16px;
     color: var(--color-text-light);
+    text-shadow: 0 0 4px rgb(@black 0.25);
+    background: transparent;
+    border: none;
+
+    &:hover {
+      border-color: var(--color-border-light);
+    }
   }
-}
 
-& /deep/ .multiselect__input {
-  height: 64px;
-  padding: 0 16px;
-  color: var(--color-text-light);
-  text-shadow: 0 0 4px rgb(@black 0.25);
-  background: transparent;
-  border: none;
-
-  &:hover {
-    border-color: var(--color-border-light);
+  & /deep/ .multiselect__content {
+    top: 8px;
   }
-}
-
-& /deep/ .multiselect__content {
-  top: 8px;
 }
 </style>
