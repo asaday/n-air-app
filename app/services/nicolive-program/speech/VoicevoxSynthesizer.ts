@@ -14,6 +14,7 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
 
   async output(speech: Speech) {
     try {
+      console.log('vox 1');
       const id = speech.voicevox?.id ?? '1';
       // POSTなのに・・
       const r1 = await fetch(
@@ -22,6 +23,7 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
       );
 
       const r2 = await r1.text();
+      console.log('vox 2');
 
       const r3 = await fetch(`${VoicevoxURL}/synthesis?speaker=${id}`, {
         method: 'POST',
@@ -32,9 +34,12 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
       const r4 = await r3.blob();
       const url = URL.createObjectURL(r4);
 
+      console.log('vox 3');
+
       const audio = new Audio(url);
       await audio.play();
       URL.revokeObjectURL(url);
+      console.log('vox 4');
     } catch (e) {
       console.log(e);
     }

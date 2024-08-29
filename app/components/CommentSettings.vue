@@ -104,7 +104,7 @@
         </button>
       </div>
       <div class="input-container">
-        <div class="input-wrapper voice">
+        <div class="input-wrapper">
           <div class="row input-heading">
             <label for="system-select">システムメッセージ</label>
             <button
@@ -116,33 +116,43 @@
               読み上げテスト
             </button>
           </div>
-          <multiselect
-            class="voice"
-            id="system-select"
-            v-model="system"
-            :options="synthIds"
-            :allow-empty="false"
-            :custom-label="synthName"
-            :placeholder="$t('settings.listPlaceholder')"
-            :data-type="system"
-          >
-            <template slot="option" slot-scope="o">
-              {{ synthName(o.option) }}<span v-if="o.option == systemDefault">（既定）</span>
-            </template>
-          </multiselect>
-          <div v-if="system === 'voicevox'">
-            VOICEVOX 音声
-            <select v-if="voicevoxList.length" v-model="voicevoxIdForSystem">
-              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
-                {{ item.text }}
-              </option>
-            </select>
-            <span v-else>リストが取得できません</span>
+          <div class="voice">
+            <multiselect
+              class="voice"
+              id="system-select"
+              v-model="system"
+              :options="synthIds"
+              :allow-empty="false"
+              :custom-label="synthName"
+              :placeholder="$t('settings.listPlaceholder')"
+              :data-type="system"
+            >
+              <template slot="option" slot-scope="o">
+                {{ synthName(o.option) }}<span v-if="o.option == systemDefault">（既定）</span>
+              </template>
+            </multiselect>
+          </div>
+
+          <div v-if="system === 'voicevox'" style="display: flex; gap: 10px">
+            <div style="flex-grow: 1">
+              VOICEVOX 音声
+              <multiselect
+                v-if="voicevoxList.length"
+                v-model="voicevoxItemForSystem"
+                :options="voicevoxList"
+                label="text"
+                trackBy="id"
+                :allow-empty="false"
+                :placeholder="$t('settings.listPlaceholder')"
+              />
+              <span v-else>リストが取得できません</span>
+            </div>
+            <img style="height: 60px" :src="voicevoxIconForSystem" />
           </div>
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper voice">
+        <div class="input-wrapper">
           <div class="row input-heading">
             <label for="normal-select">視聴者コメント</label>
             <button
@@ -154,32 +164,42 @@
               読み上げテスト
             </button>
           </div>
-          <multiselect
-            id="normal-select"
-            v-model="normal"
-            :options="synthIds"
-            :allow-empty="false"
-            :custom-label="synthName"
-            :placeholder="$t('settings.listPlaceholder')"
-            :data-type="normal"
-          >
-            <template slot="option" slot-scope="o">
-              {{ synthName(o.option) }}<span v-if="o.option == normalDefault">（既定）</span>
-            </template>
-          </multiselect>
+          <div class="voice">
+            <multiselect
+              id="normal-select"
+              v-model="normal"
+              :options="synthIds"
+              :allow-empty="false"
+              :custom-label="synthName"
+              :placeholder="$t('settings.listPlaceholder')"
+              :data-type="normal"
+            >
+              <template slot="option" slot-scope="o">
+                {{ synthName(o.option) }}<span v-if="o.option == normalDefault">（既定）</span>
+              </template>
+            </multiselect>
+          </div>
 
-          <div v-if="normal === 'voicevox'">
-            VOICEVOX 音声
-            <select v-model="voicevoxIdForNormal">
-              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
-                {{ item.text }}
-              </option>
-            </select>
+          <div v-if="normal === 'voicevox'" style="display: flex; gap: 10px">
+            <div style="flex-grow: 1">
+              VOICEVOX 音声
+              <multiselect
+                v-if="voicevoxList.length"
+                v-model="voicevoxItemForNormal"
+                :options="voicevoxList"
+                label="text"
+                trackBy="id"
+                :allow-empty="false"
+                :placeholder="$t('settings.listPlaceholder')"
+              />
+              <span v-else>リストが取得できません</span>
+            </div>
+            <img style="height: 60px" :src="voicevoxIconForNormal" />
           </div>
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper voice">
+        <div class="input-wrapper">
           <div class="row input-heading">
             <label for="operator-select">放送者コメント</label>
             <button
@@ -191,26 +211,37 @@
               読み上げテスト
             </button>
           </div>
-          <multiselect
-            id="operator-select"
-            v-model="operator"
-            :options="synthIds"
-            :allow-empty="false"
-            :custom-label="synthName"
-            :placeholder="$t('settings.listPlaceholder')"
-            :data-type="operator"
-          >
-            <template slot="option" slot-scope="o">
-              {{ synthName(o.option) }}<span v-if="o.option == operatorDefault">（既定）</span>
-            </template>
-          </multiselect>
-          <div v-if="operator === 'voicevox'">
-            VOICEVOX 音声
-            <select v-model="voicevoxIdForOperator">
-              <option v-for="item in voicevoxList" :value="item.id" style="background-color: black">
-                {{ item.text }}
-              </option>
-            </select>
+          <div class="voice">
+            <multiselect
+              id="operator-select"
+              v-model="operator"
+              :options="synthIds"
+              :allow-empty="false"
+              :custom-label="synthName"
+              :placeholder="$t('settings.listPlaceholder')"
+              :data-type="operator"
+            >
+              <template slot="option" slot-scope="o">
+                {{ synthName(o.option) }}<span v-if="o.option == operatorDefault">（既定）</span>
+              </template>
+            </multiselect>
+          </div>
+
+          <div v-if="operator === 'voicevox'" style="display: flex; gap: 10px">
+            <div style="flex-grow: 1">
+              VOICEVOX 音声
+              <multiselect
+                v-if="voicevoxList.length"
+                v-model="voicevoxItemForOperator"
+                :options="voicevoxList"
+                label="text"
+                trackBy="id"
+                :allow-empty="false"
+                :placeholder="$t('settings.listPlaceholder')"
+              />
+              <span v-else>リストが取得できません</span>
+            </div>
+            <img style="height: 60px" :src="voicevoxIconForOperator" />
           </div>
         </div>
       </div>
@@ -339,6 +370,11 @@
       background-size: 100% auto;
       opacity: 0.9;
     }
+  }
+
+  & /deep/ [data-type='voicevox'] .multiselect__tags {
+    background: url('../../media/images/nvoice_bg.png') center no-repeat;
+    background-size: 100% auto;
   }
 
   & /deep/ .multiselect__select {

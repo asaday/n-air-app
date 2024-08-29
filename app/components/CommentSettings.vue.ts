@@ -14,10 +14,17 @@ import VueSlider from 'vue-slider-component';
 import Multiselect from 'vue-multiselect';
 import { HttpRelation } from 'services/nicolive-program/httpRelation';
 import * as remote from '@electron/remote';
+import { VoicevoxURL } from 'services/nicolive-program/speech/VoicevoxSynthesizer';
 
 type MethodObject = {
   text: string;
   value: string;
+};
+
+type VoicevoxItem = {
+  id: string;
+  text: string;
+  uuid: string;
 };
 
 @Component({
@@ -45,52 +52,7 @@ export default class CommentSettings extends Vue {
   }
 
   mounted() {
-    this.readVoicevox().then();
-  }
-
-  async readVoicevox() {
-    const list: { id: string; text: string }[] = [];
-
-    try {
-      const json = await (await fetch('http://localhost:50021/speakers')).json();
-      for (const item of json) {
-        const name = item['name'];
-        for (const style of item['styles']) {
-          const id = style['id'];
-          const sn = style['name'];
-          if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
-          list.push({ id, text: `${name} ${sn}` });
-        }
-      }
-      this.voicevoxList = list;
-      this.voicevoxIdForSystem = this.nicoliveCommentSynthesizerService.getVoicevox('system').id;
-      this.voicevoxIdForNormal = this.nicoliveCommentSynthesizerService.getVoicevox('normal').id;
-      this.voicevoxIdForOperator =
-        this.nicoliveCommentSynthesizerService.getVoicevox('operator').id;
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  voicevoxList: { id: string; text: string }[] = [];
-
-  voicevoxIdForSystem = '';
-  voicevoxIdForNormal = '';
-  voicevoxIdForOperator = '';
-
-  @Watch(`voicevoxIdForSystem`)
-  onChangeVoicevoxIdForSystem() {
-    this.nicoliveCommentSynthesizerService.setVoicevox('system', { id: this.voicevoxIdForSystem });
-  }
-  @Watch(`voicevoxIdForNormal`)
-  onChangeVoicevoxIdForNormal() {
-    this.nicoliveCommentSynthesizerService.setVoicevox('normal', { id: this.voicevoxIdForNormal });
-  }
-  @Watch(`voicevoxIdForOperator`)
-  onChangeVoicevoxIdForOperator() {
-    this.nicoliveCommentSynthesizerService.setVoicevox('operator', {
-      id: this.voicevoxIdForOperator,
-    });
+    this.readVoicevoxList();
   }
 
   get enabled(): boolean {
@@ -195,6 +157,8 @@ export default class CommentSettings extends Vue {
     this.nicoliveCommentLocalFilterService.showAnonymous = v;
   }
 
+  //-----------------------------------------
+
   httpRelationMethods: MethodObject[] = [
     { value: '', text: '---' },
     { value: 'GET', text: 'GET' },
@@ -229,5 +193,99 @@ export default class CommentSettings extends Vue {
 
   showHttpRelationPage() {
     remote.shell.openExternal('https://github.com/n-air-app/n-air-app/wiki/http_relation');
+  }
+
+  // ---------------------------------------
+
+  voicevoxList: VoicevoxItem[] = [{ id: '', text: '', uuid: '' }];
+  voicevoxItemForNormal: VoicevoxItem = this.voicevoxList[0];
+  voicevoxItemForSystem: VoicevoxItem = this.voicevoxList[0];
+  voicevoxItemForOperator: VoicevoxItem = this.voicevoxList[0];
+
+  voicevoxIcons: { [id: string]: string } = {};
+  voicevoxIconForNormal = '';
+  voicevoxIconForSystem = '';
+  voicevoxIconForOperator = '';
+
+  @Watch('voicevoxItemForNormal')
+  onChangevoicevoxForNormal() {
+    const id = this.voicevoxItemForNormal.id;
+    this.nicoliveCommentSynthesizerService.voicevoxNormal = id;
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForNormal = a));
+  }
+  @Watch('voicevoxItemForSystem')
+  onChangevoicevoxForSystem() {
+    const id = this.voicevoxItemForSystem.id;
+    this.nicoliveCommentSynthesizerService.voicevoxSystem = id;
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForSystem = a));
+  }
+  @Watch('voicevoxItemForOperator')
+  onChangevoicevoxForOperator() {
+    const id = this.voicevoxItemForOperator.id;
+    this.nicoliveCommentSynthesizerService.voicevoxOperator = id;
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForOperator = a));
+  }
+
+  async readVoicevoxList() {
+    try {
+      const list: VoicevoxItem[] = [];
+      const json = await (await fetch(`${VoicevoxURL}/speakers`)).json();
+      for (const item of json) {
+        const name = item['name'];
+        const uuid = item['speaker_uuid'];
+        for (const style of item['styles']) {
+          const id = style['id'];
+          const sn = style['name'];
+          if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
+          list.push({ id, uuid, text: `${name} ${sn}` });
+        }
+      }
+      if (!list.length) return;
+      this.voicevoxList = list;
+
+      const normal = this.nicoliveCommentSynthesizerService.voicevoxNormal;
+      const system = this.nicoliveCommentSynthesizerService.voicevoxSystem;
+      const operator = this.nicoliveCommentSynthesizerService.voicevoxOperator;
+
+      this.voicevoxItemForNormal = this.getVoicevoxItem(normal);
+      this.voicevoxItemForSystem = this.getVoicevoxItem(system);
+      this.voicevoxItemForOperator = this.getVoicevoxItem(operator);
+
+      this.getVoicevoxIcon(normal).then(a => (this.voicevoxIconForNormal = a));
+      this.getVoicevoxIcon(system).then(a => (this.voicevoxIconForSystem = a));
+      this.getVoicevoxIcon(operator).then(a => (this.voicevoxIconForOperator = a));
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  getVoicevoxItem(id: string): VoicevoxItem {
+    const def = this.voicevoxList[0];
+    if (!id) return def;
+    return this.voicevoxList.find(a => a.id === id) ?? def;
+  }
+
+  async getVoicevoxIcon(id: string) {
+    if (!id) return '';
+    if (this.voicevoxIcons[id]) return this.voicevoxIcons[id];
+
+    const obj = this.getVoicevoxItem(id);
+    if (!obj) return '';
+
+    try {
+      const json = await (
+        await fetch(`${VoicevoxURL}/speaker_info?resource_format=url&speaker_uuid=${obj.uuid}`)
+      ).json();
+      for (const item of json.style_infos) {
+        const id = item['id'];
+        const icon = item['icon'];
+        if (!id || !icon) continue;
+        this.voicevoxIcons[id] = icon;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
+    return this.voicevoxIcons[id] ?? '';
   }
 }

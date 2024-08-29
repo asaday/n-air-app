@@ -39,7 +39,7 @@ export interface ICommentSynthesizerState {
     operator: SynthesizerSelector;
     system: SynthesizerSelector;
   };
-  voicevox: { [selector: string]: { id: string } };
+  voicevox: { normal: string; operator: string; system: string };
 }
 
 @InitAfter('NicoliveProgramStateService')
@@ -59,7 +59,7 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
       operator: 'nVoice',
       system: 'webSpeech',
     },
-    voicevox: {},
+    voicevox: { normal: '', operator: '', system: '' },
   };
 
   // この数すでにキューに溜まっている場合は破棄してから追加する
@@ -165,7 +165,11 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
     };
 
     if (synthId === 'voicevox') {
-      speech.voicevox = { id: this.state.voicevox[chat.type as string]?.id ?? '1' };
+      let id = '1';
+      if (chat.type === 'normal') id = this.state.voicevox.normal;
+      if (chat.type === 'operator') id = this.state.voicevox.operator;
+      if (chat.type === 'system') id = this.state.voicevox.system;
+      speech.voicevox = { id };
     }
 
     return speech;
@@ -312,15 +316,34 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
     this.setState({ selector: { ...this.state.selector, system: s } });
   }
 
-  getVoicevox(selector: string) {
-    return this.state.voicevox[selector] ?? { id: '' };
+  get voicevoxNormal(): string {
+    return this.state.voicevox.normal;
+  }
+  set voicevoxNormal(s: string) {
+    this.setState({ voicevox: { ...this.state.voicevox, normal: s } });
+  }
+  get voicevoxOperator(): string {
+    return this.state.voicevox.operator;
+  }
+  set voicevoxOperator(s: string) {
+    this.setState({ voicevox: { ...this.state.voicevox, operator: s } });
+  }
+  get voicevoxSystem(): string {
+    return this.state.voicevox.system;
+  }
+  set voicevoxSystem(s: string) {
+    this.setState({ voicevox: { ...this.state.voicevox, system: s } });
   }
 
-  setVoicevox(selector: string, value: { id: string }) {
-    const voicevox = { ...this.state.voicevox, [selector]: value };
-    console.log(voicevox);
-    this.setState({ voicevox });
-  }
+  // getVoicevox(selector: string) {
+  //   return this.state.voicevox[selector] ?? { id: '' };
+  // }
+
+  // setVoicevox(selector: string, value: { id: string }) {
+  //   const voicevox = { ...this.state.voicevox, [selector]: value };
+  //   console.log(voicevox);
+  //   this.setState({ voicevox });
+  // }
 
   private setState(partialState: Partial<ICommentSynthesizerState>) {
     const nextState = { ...this.state, ...partialState };
