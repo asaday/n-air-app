@@ -335,16 +335,6 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
     this.setState({ voicevox: { ...this.state.voicevox, system: s } });
   }
 
-  // getVoicevox(selector: string) {
-  //   return this.state.voicevox[selector] ?? { id: '' };
-  // }
-
-  // setVoicevox(selector: string, value: { id: string }) {
-  //   const voicevox = { ...this.state.voicevox, [selector]: value };
-  //   console.log(voicevox);
-  //   this.setState({ voicevox });
-  // }
-
   private setState(partialState: Partial<ICommentSynthesizerState>) {
     const nextState = { ...this.state, ...partialState };
     this.stateService.updateSpeechSynthesizerSettings(nextState);

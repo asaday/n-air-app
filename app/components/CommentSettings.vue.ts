@@ -197,10 +197,10 @@ export default class CommentSettings extends Vue {
 
   // ---------------------------------------
 
-  voicevoxList: VoicevoxItem[] = [{ id: '', text: '', uuid: '' }];
-  voicevoxItemForNormal: VoicevoxItem = this.voicevoxList[0];
-  voicevoxItemForSystem: VoicevoxItem = this.voicevoxList[0];
-  voicevoxItemForOperator: VoicevoxItem = this.voicevoxList[0];
+  voicevoxList: VoicevoxItem[] = [];
+  voicevoxItemForNormal: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxItemForSystem: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxItemForOperator: VoicevoxItem = { id: '', text: '', uuid: '' };
 
   voicevoxIcons: { [id: string]: string } = {};
   voicevoxIconForNormal = '';
@@ -257,25 +257,23 @@ export default class CommentSettings extends Vue {
   }
 
   getVoicevoxItem(id: string): VoicevoxItem {
-    const def = this.voicevoxList[0];
-    if (!id) return def;
-    return this.voicevoxList.find(a => a.id === id) ?? def;
+    return this.voicevoxList.find(a => a.id === id) ?? { id: '', text: '', uuid: '' };
   }
 
   async getVoicevoxIcon(id: string) {
     if (!id) return '';
     if (this.voicevoxIcons[id]) return this.voicevoxIcons[id];
 
-    const obj = this.getVoicevoxItem(id);
-    if (!obj) return '';
+    const item = this.getVoicevoxItem(id);
+    if (!item) return '';
 
     try {
       const json = await (
-        await fetch(`${VoicevoxURL}/speaker_info?resource_format=url&speaker_uuid=${obj.uuid}`)
+        await fetch(`${VoicevoxURL}/speaker_info?resource_format=url&speaker_uuid=${item.uuid}`)
       ).json();
-      for (const item of json.style_infos) {
-        const id = item['id'];
-        const icon = item['icon'];
+      for (const info of json.style_infos) {
+        const id = info['id'];
+        const icon = info['icon'];
         if (!id || !icon) continue;
         this.voicevoxIcons[id] = icon;
       }
