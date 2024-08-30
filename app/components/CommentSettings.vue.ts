@@ -242,18 +242,15 @@ export default class CommentSettings extends Vue {
       }
       if (!list.length) return;
       this.voicevoxList = list;
-
-      const normal = this.nicoliveCommentSynthesizerService.voicevoxNormal;
-      const system = this.nicoliveCommentSynthesizerService.voicevoxSystem;
-      const operator = this.nicoliveCommentSynthesizerService.voicevoxOperator;
-
-      this.voicevoxItemForNormal = this.getVoicevoxItem(normal);
-      this.voicevoxItemForSystem = this.getVoicevoxItem(system);
-      this.voicevoxItemForOperator = this.getVoicevoxItem(operator);
-
-      this.getVoicevoxIcon(normal).then(a => (this.voicevoxIconForNormal = a));
-      this.getVoicevoxIcon(system).then(a => (this.voicevoxIconForSystem = a));
-      this.getVoicevoxIcon(operator).then(a => (this.voicevoxIconForOperator = a));
+      this.voicevoxItemForNormal = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxNormal,
+      );
+      this.voicevoxItemForSystem = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxSystem,
+      );
+      this.voicevoxItemForOperator = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxOperator,
+      );
     } catch (e) {
       console.log(e);
     }
