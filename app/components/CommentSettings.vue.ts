@@ -197,33 +197,44 @@ export default class CommentSettings extends Vue {
 
   // ---------------------------------------
 
-  voicevoxList: VoicevoxItem[] = [];
-  voicevoxItemForNormal: VoicevoxItem = { id: '', text: '', uuid: '' };
-  voicevoxItemForSystem: VoicevoxItem = { id: '', text: '', uuid: '' };
-  voicevoxItemForOperator: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxItems: VoicevoxItem[] = [];
+  voicevoxNormalItem: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxSystemItem: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxOperatorItem: VoicevoxItem = { id: '', text: '', uuid: '' };
 
   voicevoxIcons: { [id: string]: string } = {};
-  voicevoxIconForNormal = '';
-  voicevoxIconForSystem = '';
-  voicevoxIconForOperator = '';
+  voicevoxNormalIcon = '';
+  voicevoxSystemIcon = '';
+  voicevoxOperatorIcon = '';
 
-  @Watch('voicevoxItemForNormal')
+  voicevoxSystemSpeed = 1;
+
+  @Watch('voicevoxNormalItem')
   onChangevoicevoxForNormal() {
-    const id = this.voicevoxItemForNormal.id;
-    this.nicoliveCommentSynthesizerService.voicevoxNormal = id;
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForNormal = a));
+    const id = this.voicevoxNormalItem.id;
+    this.nicoliveCommentSynthesizerService.voicevoxNormal = { id };
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxNormalIcon = a));
   }
-  @Watch('voicevoxItemForSystem')
+  @Watch('voicevoxSystemItem')
   onChangevoicevoxForSystem() {
-    const id = this.voicevoxItemForSystem.id;
-    this.nicoliveCommentSynthesizerService.voicevoxSystem = id;
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForSystem = a));
+    const id = this.voicevoxSystemItem.id;
+    this.nicoliveCommentSynthesizerService.voicevoxSystem = { id };
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxSystemIcon = a));
   }
-  @Watch('voicevoxItemForOperator')
+  @Watch('voicevoxOperatorItem')
   onChangevoicevoxForOperator() {
-    const id = this.voicevoxItemForOperator.id;
-    this.nicoliveCommentSynthesizerService.voicevoxOperator = id;
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxIconForOperator = a));
+    const id = this.voicevoxOperatorItem.id;
+    this.nicoliveCommentSynthesizerService.voicevoxOperator = { id };
+    this.getVoicevoxIcon(id).then(a => (this.voicevoxOperatorIcon = a));
+  }
+
+  @Watch('voicevoxSystemSpeed')
+  onChangevoicevoxSpeed() {
+    console.log(`speed to ${this.voicevoxSystemSpeed}`);
+    this.nicoliveCommentSynthesizerService.voicevoxSystem = {
+      id: this.voicevoxSystemItem.id,
+      speed: this.voicevoxSystemSpeed,
+    };
   }
 
   async readVoicevoxList() {
@@ -241,23 +252,25 @@ export default class CommentSettings extends Vue {
         }
       }
       if (!list.length) return;
-      this.voicevoxList = list;
-      this.voicevoxItemForNormal = this.getVoicevoxItem(
-        this.nicoliveCommentSynthesizerService.voicevoxNormal,
+      this.voicevoxItems = list;
+      this.voicevoxNormalItem = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxNormal.id,
       );
-      this.voicevoxItemForSystem = this.getVoicevoxItem(
-        this.nicoliveCommentSynthesizerService.voicevoxSystem,
+      this.voicevoxSystemItem = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxSystem.id,
       );
-      this.voicevoxItemForOperator = this.getVoicevoxItem(
-        this.nicoliveCommentSynthesizerService.voicevoxOperator,
+      this.voicevoxOperatorItem = this.getVoicevoxItem(
+        this.nicoliveCommentSynthesizerService.voicevoxOperator.id,
       );
+
+      this.voicevoxSystemSpeed = this.nicoliveCommentSynthesizerService.voicevoxSystem.speed ?? 1;
     } catch (e) {
       console.log(e);
     }
   }
 
   getVoicevoxItem(id: string): VoicevoxItem {
-    return this.voicevoxList.find(a => a.id === id) ?? { id: '', text: '', uuid: '' };
+    return this.voicevoxItems.find(a => a.id === id) ?? { id: '', text: '', uuid: '' };
   }
 
   async getVoicevoxIcon(id: string) {

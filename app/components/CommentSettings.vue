@@ -137,9 +137,9 @@
             <div style="flex-grow: 1">
               VOICEVOX 音声
               <multiselect
-                v-if="voicevoxList.length"
-                v-model="voicevoxItemForSystem"
-                :options="voicevoxList"
+                v-if="voicevoxItems.length"
+                v-model="voicevoxSystemItem"
+                :options="voicevoxItems"
                 label="text"
                 trackBy="id"
                 :allow-empty="false"
@@ -147,7 +147,14 @@
               />
               <span v-else>リストが取得できません</span>
             </div>
-            <img style="height: 60px" :src="voicevoxIconForSystem" />
+            <img style="height: 60px" :src="voicevoxSystemIcon" />
+            <VueSlider
+              class="slider"
+              v-model="voicevoxSystemSpeed"
+              :min="0.5"
+              :max="3"
+              tooltip="none"
+            />
           </div>
         </div>
       </div>
@@ -184,9 +191,9 @@
             <div style="flex-grow: 1">
               VOICEVOX 音声
               <multiselect
-                v-if="voicevoxList.length"
-                v-model="voicevoxItemForNormal"
-                :options="voicevoxList"
+                v-if="voicevoxItems.length"
+                v-model="voicevoxNormalItem"
+                :options="voicevoxItems"
                 label="text"
                 trackBy="id"
                 :allow-empty="false"
@@ -194,7 +201,7 @@
               />
               <span v-else>リストが取得できません</span>
             </div>
-            <img style="height: 60px" :src="voicevoxIconForNormal" />
+            <img style="height: 60px" :src="voicevoxNormalIcon" />
           </div>
         </div>
       </div>
@@ -231,9 +238,9 @@
             <div style="flex-grow: 1">
               VOICEVOX 音声
               <multiselect
-                v-if="voicevoxList.length"
-                v-model="voicevoxItemForOperator"
-                :options="voicevoxList"
+                v-if="voicevoxItems.length"
+                v-model="voicevoxOperatorItem"
+                :options="voicevoxItems"
                 label="text"
                 trackBy="id"
                 :allow-empty="false"
@@ -241,7 +248,7 @@
               />
               <span v-else>リストが取得できません</span>
             </div>
-            <img style="height: 60px" :src="voicevoxIconForOperator" />
+            <img style="height: 60px" :src="voicevoxOperatorIcon" />
           </div>
         </div>
       </div>

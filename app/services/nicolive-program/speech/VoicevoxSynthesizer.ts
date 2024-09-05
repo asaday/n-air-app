@@ -22,13 +22,18 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
         { method: 'POST' },
       );
 
-      const r2 = await r1.text();
+      const r2 = await r1.json();
       console.log('vox 2');
+      console.log(JSON.stringify(r2));
+      if (speech.voicevox?.speed) {
+        r2.speedScale = speech.voicevox.speed;
+        console.log(`speed ${speech.voicevox.speed}`);
+      }
 
       const r3 = await fetch(`${VoicevoxURL}/synthesis?speaker=${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'audio/wav' },
-        body: r2,
+        body: JSON.stringify(r2),
       });
 
       const r4 = await r3.blob();
