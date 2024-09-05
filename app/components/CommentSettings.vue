@@ -140,7 +140,7 @@
                 v-if="voicevoxItems.length"
                 v-model="voicevoxSystemItem"
                 :options="voicevoxItems"
-                label="text"
+                label="name"
                 trackBy="id"
                 :allow-empty="false"
                 :placeholder="$t('settings.listPlaceholder')"
@@ -194,12 +194,12 @@
                 v-if="voicevoxItems.length"
                 v-model="voicevoxNormalItem"
                 :options="voicevoxItems"
-                label="text"
+                label="name"
                 trackBy="id"
                 :allow-empty="false"
                 :placeholder="$t('settings.listPlaceholder')"
               />
-              <span v-else>リストが取得できません</span>
+              <span v-else>リストが取得できません(DLか起動を案内)</span>
             </div>
             <img style="height: 60px" :src="voicevoxNormalIcon" />
           </div>
@@ -241,7 +241,7 @@
                 v-if="voicevoxItems.length"
                 v-model="voicevoxOperatorItem"
                 :options="voicevoxItems"
-                label="text"
+                label="name"
                 trackBy="id"
                 :allow-empty="false"
                 :placeholder="$t('settings.listPlaceholder')"

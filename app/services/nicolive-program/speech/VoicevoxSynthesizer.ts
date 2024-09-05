@@ -4,10 +4,6 @@ import { ISpeechSynthesizer } from './ISpeechSynthesizer';
 export const VoicevoxURL = `http://localhost:50021`;
 
 export class VoicevoxSynthesizer implements ISpeechSynthesizer {
-  get available(): boolean {
-    return true;
-  }
-
   private speakingPromise: Promise<void> | null = null;
   private speakingResolve: () => void | null = null;
   private speakingCounter: number = 0;
@@ -52,7 +48,7 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
 
   speakText(speech: Speech, onstart: () => void, onend: () => void) {
     return async () => async () => {
-      if (!speech || speech.text === '' || !this.available) {
+      if (!speech || speech.text === '') {
         return null;
       }
       if (!this.speakingPromise) {

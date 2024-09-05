@@ -23,8 +23,8 @@ type MethodObject = {
 
 type VoicevoxItem = {
   id: string;
-  text: string;
-  uuid: string;
+  name: string;
+  uuid?: string;
 };
 
 @Component({
@@ -198,9 +198,9 @@ export default class CommentSettings extends Vue {
   // ---------------------------------------
 
   voicevoxItems: VoicevoxItem[] = [];
-  voicevoxNormalItem: VoicevoxItem = { id: '', text: '', uuid: '' };
-  voicevoxSystemItem: VoicevoxItem = { id: '', text: '', uuid: '' };
-  voicevoxOperatorItem: VoicevoxItem = { id: '', text: '', uuid: '' };
+  voicevoxNormalItem: VoicevoxItem = { id: '', name: '' };
+  voicevoxSystemItem: VoicevoxItem = { id: '', name: '' };
+  voicevoxOperatorItem: VoicevoxItem = { id: '', name: '' };
 
   voicevoxIcons: { [id: string]: string } = {};
   voicevoxNormalIcon = '';
@@ -231,10 +231,8 @@ export default class CommentSettings extends Vue {
   @Watch('voicevoxSystemSpeed')
   onChangevoicevoxSpeed() {
     console.log(`speed to ${this.voicevoxSystemSpeed}`);
-    this.nicoliveCommentSynthesizerService.voicevoxSystem = {
-      id: this.voicevoxSystemItem.id,
-      speed: this.voicevoxSystemSpeed,
-    };
+    const speed = this.voicevoxSystemSpeed;
+    this.nicoliveCommentSynthesizerService.voicevoxSystem = { speed };
   }
 
   async readVoicevoxList() {
@@ -248,7 +246,7 @@ export default class CommentSettings extends Vue {
           const id = style['id'];
           const sn = style['name'];
           if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
-          list.push({ id, uuid, text: `${name} ${sn}` });
+          list.push({ id, uuid, name: `${name} ${sn}` });
         }
       }
       if (!list.length) return;
@@ -264,21 +262,22 @@ export default class CommentSettings extends Vue {
       );
 
       this.voicevoxSystemSpeed = this.nicoliveCommentSynthesizerService.voicevoxSystem.speed ?? 1;
+
+      console.log(JSON.stringify(list));
     } catch (e) {
       console.log(e);
     }
   }
 
   getVoicevoxItem(id: string): VoicevoxItem {
-    return this.voicevoxItems.find(a => a.id === id) ?? { id: '', text: '', uuid: '' };
+    return this.voicevoxItems.find(a => a.id === id) ?? { id: '', name: '' };
   }
 
   async getVoicevoxIcon(id: string) {
-    if (!id) return '';
     if (this.voicevoxIcons[id]) return this.voicevoxIcons[id];
 
     const item = this.getVoicevoxItem(id);
-    if (!item) return '';
+    if (!item || !item.uuid) return '';
 
     try {
       const json = await (
@@ -287,12 +286,14 @@ export default class CommentSettings extends Vue {
       for (const info of json.style_infos) {
         const id = info['id'];
         const icon = info['icon'];
-        if (!id || !icon) continue;
+        if (id === undefined || !icon) continue;
         this.voicevoxIcons[id] = icon;
       }
     } catch (e) {
       console.log(e);
     }
+
+    console.log(JSON.stringify(this.voicevoxIcons));
 
     return this.voicevoxIcons[id] ?? '';
   }

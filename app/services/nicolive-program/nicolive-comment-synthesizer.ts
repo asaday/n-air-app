@@ -169,11 +169,10 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
       text: r,
     };
 
-    if (synthId === 'voicevox') {
-      speech.voicevox = { id: '1' };
+    if (synthesizer === 'voicevox') {
       if (chat.type === 'normal') speech.voicevox = this.state.voicevox.normal;
-      if (chat.type === 'operator') speech.voicevox = this.state.voicevox.operator;
-      if (chat.type === 'system') speech.voicevox = this.state.voicevox.system;
+      else if (chat.type === 'operator') speech.voicevox = this.state.voicevox.operator;
+      else if (chat.type === 'system') speech.voicevox = this.state.voicevox.system;
     }
 
     return speech;
@@ -330,14 +329,14 @@ export class NicoliveCommentSynthesizerService extends StatefulService<ICommentS
   get voicevoxOperator(): VoicevoxParam {
     return this.state.voicevox.operator;
   }
-  set voicevoxOperator(param: VoicevoxParam) {
+  set voicevoxOperator(param: Partial<VoicevoxParam>) {
     const operator = { ...this.state.voicevox.operator, ...param };
     this.setState({ voicevox: { ...this.state.voicevox, operator } });
   }
   get voicevoxSystem(): VoicevoxParam {
     return this.state.voicevox.system;
   }
-  set voicevoxSystem(param: VoicevoxParam) {
+  set voicevoxSystem(param: Partial<VoicevoxParam>) {
     const system = { ...this.state.voicevox.system, ...param };
     this.setState({ voicevox: { ...this.state.voicevox, system } });
   }
