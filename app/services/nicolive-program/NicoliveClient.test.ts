@@ -96,11 +96,11 @@ test('wrapResultはbodyがJSONでなければSyntaxErrorをwrapして返す', as
 });
 
 interface Suite {
-  name: string;
-  method: string;
+  name: keyof NicoliveClient;
+  method: 'get' | 'post' | 'put' | 'delete';
   base: string;
   path: string;
-  args?: any[];
+  args: any[];
 }
 const suites: Suite[] = [
   {
@@ -108,6 +108,7 @@ const suites: Suite[] = [
     base: NicoliveClient.live2BaseURL,
     method: 'get',
     path: '/unama/tool/v1/program_schedules',
+    args: [],
   },
   {
     name: 'fetchProgram',
@@ -179,6 +180,13 @@ const suites: Suite[] = [
     path: `/unama/api/v2/broadcasters/moderators?userId=${userID}`,
     args: [userID],
   },
+  {
+    name: 'fetchSupporters',
+    method: 'get',
+    base: NicoliveClient.live2ApiBaseURL,
+    path: `/api/v1/broadcaster/supporters?limit=1000&offset=0`,
+    args: [],
+  },
 ];
 
 suites.forEach((suite: Suite) => {
@@ -188,8 +196,9 @@ suites.forEach((suite: Suite) => {
       niconicoSession: 'dummy',
     });
 
-    fetchMock[suite.method.toLowerCase()](suite.base + suite.path, dummyBody);
-    const result = await client[suite.name](...(suite.args || []));
+    fetchMock[suite.method](suite.base + suite.path, dummyBody);
+    // @ts-expect-error 引数の型
+    const result = await client[suite.name](...suite.args);
 
     expect(result).toEqual({ ok: true, value: dummyBody.data });
     expect(fetchMock.done()).toBe(true);

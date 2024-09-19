@@ -104,8 +104,8 @@
         </button>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
-          <div class="row input-heading">
+        <div class="input-wrapper voice">
+          <div class="row input-label">
             <label for="system-select">システムメッセージ</label>
             <button
               class="button button--secondary"
@@ -159,8 +159,8 @@
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
-          <div class="row input-heading">
+        <div class="input-wrapper voice">
+          <div class="row input-label">
             <label for="normal-select">視聴者コメント</label>
             <button
               class="button button--secondary"
@@ -206,8 +206,8 @@
         </div>
       </div>
       <div class="input-container">
-        <div class="input-wrapper">
-          <div class="row input-heading">
+        <div class="input-wrapper voice">
+          <div class="row input-label">
             <label for="operator-select">放送者コメント</label>
             <button
               class="button button--secondary"
@@ -260,7 +260,9 @@
       </div>
       <div class="input-container">
         <div class="input-wrapper">
-          Method
+          <div class="input-label">
+            <label>Method</label>
+          </div>
           <multiselect
             v-model="httpRelationMethod"
             :options="httpRelationMethods"
@@ -271,12 +273,25 @@
           >
           </multiselect>
         </div>
-        <div class="input-wrapper">URL <input type="text" v-model="httpRelationUrl" /></div>
-        <div class="input-wrapper">
-          Body<textarea rows="3" v-model="httpRelationBody"></textarea>
+        <div class="input-wrapper" v-if="httpRelationMethod.value !== ''">
+          <div class="input-label">
+            <label>URL</label>
+          </div>
+          <input type="text" v-model="httpRelationUrl" />
+        </div>
+        <div
+          class="input-wrapper"
+          v-if="httpRelationMethod.value !== '' && httpRelationMethod.value !== 'GET'"
+        >
+          <div class="input-label">
+            <label>Body</label>
+          </div>
+          <textarea rows="3" v-model="httpRelationBody"></textarea>
+        </div>
+        <div class="input-wrapper" v-if="httpRelationMethod.value !== ''">
+          <button class="button button--secondary" @click="testHttpRelation()">テスト</button>
         </div>
         <div class="input-wrapper">
-          <button class="button button--secondary" @click="testHttpRelation()">テスト</button>
           詳細は<a @click="showHttpRelationPage()">こちら</a>を参照してください
         </div>
       </div>
@@ -403,6 +418,10 @@
 
     &:hover {
       border-color: var(--color-border-light);
+    }
+
+    &:focus {
+      background: var(--color-input-bg);
     }
   }
 

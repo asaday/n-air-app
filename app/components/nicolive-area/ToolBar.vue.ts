@@ -28,6 +28,9 @@ export default class ToolBar extends Vue {
   selectedButton: 'start' | 'end' = 'start';
   showButtonSelector: boolean = false;
 
+  popper1: PopperEvent;
+  popper2: PopperEvent;
+
   selectButton(button: 'start' | 'end') {
     this.selectedButton = button;
   }
@@ -118,7 +121,7 @@ export default class ToolBar extends Vue {
 
   currentTime: number = NaN;
   updateCurrentTime() {
-    this.currentTime = Math.floor(Date.now() / 1000);
+    this.currentTime = Math.floor(this.nicoliveProgramService.correctedNowMs() / 1000);
   }
 
   get programCurrentTime(): number {

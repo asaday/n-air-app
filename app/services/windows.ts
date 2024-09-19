@@ -11,6 +11,7 @@ import AddSource from 'components/windows/AddSource.vue';
 import RenameSource from 'components/windows/RenameSource.vue';
 import NameScene from 'components/windows/NameScene.vue';
 import NameFolder from 'components/windows/NameFolder.vue';
+import NameSceneCollection from 'components/windows/NameSceneCollection.vue';
 import SourceProperties from 'components/windows/SourceProperties.vue';
 import RtvcSourceProperties from 'components/windows/RtvcSourceProperties.vue';
 import SourceFilters from 'components/windows/SourceFilters.vue';
@@ -53,6 +54,7 @@ export function getComponents() {
     AddSource,
     NameScene,
     NameFolder,
+    NameSceneCollection,
     SourceProperties,
     RtvcSourceProperties,
     SourceFilters,
@@ -75,7 +77,7 @@ export function getComponents() {
 }
 
 export interface IWindowOptions {
-  componentName: string;
+  componentName: keyof ReturnType<typeof getComponents> | '';
   queryParams?: Dictionary<any>;
   size?: {
     x?: number;
@@ -129,17 +131,19 @@ export class WindowsService extends StatefulService<IWindowsState> {
 
   // This is a list of components that are registered to be
   // top level components in new child windows.
-  components = getComponents();
+  components = getComponents() as { [key: string]: Vue.Component };
 
   windowUpdated = new Subject<{ windowId: string; options: IWindowOptions }>();
   windowDestroyed = new Subject<string>();
   private windows: Dictionary<Electron.BrowserWindow> = {};
 
   init() {
-    const windows = BrowserWindow.getAllWindows();
+    const windowIds = ipcRenderer.sendSync('getWindowIds');
 
-    this.windows.main = windows[0];
-    this.windows.child = windows[1];
+    this.windows.main = BrowserWindow.fromId(windowIds.main);
+    this.windows.child = BrowserWindow.fromId(windowIds.child);
+
+    this.windows.main.webContents.setBackgroundThrottling(false);
 
     this.updateScaleFactor('main');
     this.updateScaleFactor('child');
@@ -162,7 +166,12 @@ export class WindowsService extends StatefulService<IWindowsState> {
         });
         return;
       }
-      this.UPDATE_SCALE_FACTOR(windowId, currentDisplay.scaleFactor);
+      if (currentDisplay.scaleFactor !== this.state[windowId].scaleFactor) {
+        console.log(
+          `${windowId} currentDisplay.scaleFactor ${this.state[windowId].scaleFactor} -> ${currentDisplay.scaleFactor}`,
+        );
+        this.UPDATE_SCALE_FACTOR(windowId, currentDisplay.scaleFactor);
+      }
     }
   }
 
