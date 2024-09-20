@@ -236,7 +236,7 @@
 
           <div v-if="operator === 'voicevox'" style="display: flex; gap: 10px">
             <div style="flex-grow: 1">
-              VOICEVOX 音声
+              棒読みちゃん 音声
               <multiselect
                 v-if="voicevoxItems.length"
                 v-model="voicevoxOperatorItem"

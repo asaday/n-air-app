@@ -238,16 +238,11 @@ export default class CommentSettings extends Vue {
   async readVoicevoxList() {
     try {
       const list: VoicevoxItem[] = [];
-      const json = await (await fetch(`${VoicevoxURL}/speakers`)).json();
-      for (const item of json) {
+      const json = await (await fetch(`${VoicevoxURL}/GetVoiceList`)).json();
+      for (const item of json['voiceList']) {
+        const id = item['id'];
         const name = item['name'];
-        const uuid = item['speaker_uuid'];
-        for (const style of item['styles']) {
-          const id = style['id'];
-          const sn = style['name'];
-          if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
-          list.push({ id, uuid, name: `${name} ${sn}` });
-        }
+        list.push({ id, name: `${name}` });
       }
       if (!list.length) return;
       this.voicevoxItems = list;

@@ -1,7 +1,7 @@
 import { Speech } from '../nicolive-comment-synthesizer';
 import { ISpeechSynthesizer } from './ISpeechSynthesizer';
 
-export const VoicevoxURL = `http://localhost:50021`;
+export const VoicevoxURL = `http://localhost:50080`;
 
 export class VoicevoxSynthesizer implements ISpeechSynthesizer {
   private speakingPromise: Promise<void> | null = null;
@@ -12,34 +12,9 @@ export class VoicevoxSynthesizer implements ISpeechSynthesizer {
     try {
       console.log('vox 1');
       const id = speech.voicevox?.id ?? '1';
-      // POSTなのに・・
       const r1 = await fetch(
-        `${VoicevoxURL}/audio_query?speaker=${id}&text=${encodeURIComponent(speech.text)}`,
-        { method: 'POST' },
+        `${VoicevoxURL}/Talk?voice=${id}&text=${encodeURIComponent(speech.text)}`,
       );
-
-      const r2 = await r1.json();
-      console.log('vox 2');
-      console.log(JSON.stringify(r2));
-      if (speech.voicevox?.speed) {
-        r2.speedScale = speech.voicevox.speed;
-        console.log(`speed ${speech.voicevox.speed}`);
-      }
-
-      const r3 = await fetch(`${VoicevoxURL}/synthesis?speaker=${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'audio/wav' },
-        body: JSON.stringify(r2),
-      });
-
-      const r4 = await r3.blob();
-      const url = URL.createObjectURL(r4);
-
-      console.log('vox 3');
-
-      const audio = new Audio(url);
-      await audio.play();
-      URL.revokeObjectURL(url);
       console.log('vox 4');
     } catch (e) {
       console.log(e);
