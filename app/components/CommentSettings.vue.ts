@@ -15,6 +15,8 @@ import Multiselect from 'vue-multiselect';
 import { HttpRelation } from 'services/nicolive-program/httpRelation';
 import * as remote from '@electron/remote';
 import { VoicevoxURL } from 'services/nicolive-program/speech/VoicevoxSynthesizer';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 type MethodObject = {
   text: string;
@@ -25,12 +27,20 @@ type VoicevoxItem = {
   id: string;
   name: string;
   uuid?: string;
+  url?: string;
+};
+
+type SynthesizerItem = {
+  id: SynthesizerSelector;
+  name: string;
+  url: string;
 };
 
 @Component({
   components: {
     Multiselect,
     VueSlider,
+    vSelect,
   },
 })
 export default class CommentSettings extends Vue {
@@ -40,6 +50,13 @@ export default class CommentSettings extends Vue {
   private nicoliveCommentLocalFilterService: NicoliveCommentLocalFilterService;
   @Inject()
   private nicoliveProgramStateService: NicoliveProgramStateService;
+
+  synthesizers: SynthesizerItem[] = [
+    { id: 'webSpeech', name: 'Windowsの音声合成', url: 'bundles/media/tsumugi.png' },
+    { id: 'nVoice', name: 'N Voice 琴読ニア', url: 'bundles/media/near.png' },
+    { id: 'voicevox', name: 'VOICEVOX', url: 'bundles/media/zundamon.png' },
+    { id: 'ignore', name: '読み上げない', url: 'bundles/media/tsumugi.png' },
+  ];
 
   close() {
     this.$emit('close');
@@ -203,36 +220,21 @@ export default class CommentSettings extends Vue {
   voicevoxOperatorItem: VoicevoxItem = { id: '', name: '' };
 
   voicevoxIcons: { [id: string]: string } = {};
-  voicevoxNormalIcon = '';
-  voicevoxSystemIcon = '';
-  voicevoxOperatorIcon = '';
-
-  voicevoxSystemSpeed = 1;
 
   @Watch('voicevoxNormalItem')
   onChangevoicevoxForNormal() {
     const id = this.voicevoxNormalItem.id;
     this.nicoliveCommentSynthesizerService.voicevoxNormal = { id };
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxNormalIcon = a));
   }
   @Watch('voicevoxSystemItem')
   onChangevoicevoxForSystem() {
     const id = this.voicevoxSystemItem.id;
     this.nicoliveCommentSynthesizerService.voicevoxSystem = { id };
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxSystemIcon = a));
   }
   @Watch('voicevoxOperatorItem')
   onChangevoicevoxForOperator() {
     const id = this.voicevoxOperatorItem.id;
     this.nicoliveCommentSynthesizerService.voicevoxOperator = { id };
-    this.getVoicevoxIcon(id).then(a => (this.voicevoxOperatorIcon = a));
-  }
-
-  @Watch('voicevoxSystemSpeed')
-  onChangevoicevoxSpeed() {
-    console.log(`speed to ${this.voicevoxSystemSpeed}`);
-    const speed = this.voicevoxSystemSpeed;
-    this.nicoliveCommentSynthesizerService.voicevoxSystem = { speed };
   }
 
   async readVoicevoxList() {
@@ -246,7 +248,8 @@ export default class CommentSettings extends Vue {
           const id = style['id'];
           const sn = style['name'];
           if (id === undefined || sn === undefined || style['type'] !== 'talk') continue;
-          list.push({ id, uuid, name: `${name} ${sn}` });
+          const url = await this.getVoicevoxIcon(id, uuid);
+          list.push({ id, uuid, name: `${name} ${sn}`, url });
         }
       }
       if (!list.length) return;
@@ -261,8 +264,6 @@ export default class CommentSettings extends Vue {
         this.nicoliveCommentSynthesizerService.voicevoxOperator.id,
       );
 
-      this.voicevoxSystemSpeed = this.nicoliveCommentSynthesizerService.voicevoxSystem.speed ?? 1;
-
       console.log(JSON.stringify(list));
     } catch (e) {
       console.log(e);
@@ -273,15 +274,17 @@ export default class CommentSettings extends Vue {
     return this.voicevoxItems.find(a => a.id === id) ?? { id: '', name: '' };
   }
 
-  async getVoicevoxIcon(id: string) {
+  async getVoicevoxIcon(id: string, uuid?: string) {
     if (this.voicevoxIcons[id]) return this.voicevoxIcons[id];
 
-    const item = this.getVoicevoxItem(id);
-    if (!item || !item.uuid) return '';
-
+    if (!uuid) {
+      const item = this.getVoicevoxItem(id);
+      if (!item || !item.uuid) return '';
+      uuid = item.uuid;
+    }
     try {
       const json = await (
-        await fetch(`${VoicevoxURL}/speaker_info?resource_format=url&speaker_uuid=${item.uuid}`)
+        await fetch(`${VoicevoxURL}/speaker_info?resource_format=url&speaker_uuid=${uuid}`)
       ).json();
       for (const info of json.style_infos) {
         const id = info['id'];

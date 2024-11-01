@@ -48,11 +48,7 @@
     <div class="section">
       <div class="input-label section-heading">
         <label>音声設定</label>
-        <button
-          class="button--text section-heading-button"
-          :disabled="!enabled"
-          @click="resetVoice"
-        >
+        <button class="button--text section-heading-button" :disabled="!enabled" @click="resetVoice">
           設定リセット
         </button>
       </div>
@@ -62,15 +58,8 @@
             <div class="name">速度</div>
             <div class="value">×{{ rate }}<span v-if="rate == rateDefault">（既定）</span></div>
           </div>
-          <VueSlider
-            class="slider"
-            :disabled="!enabled"
-            :data="rateCandidates"
-            :height="4"
-            v-model="rate"
-            tooltip="hover"
-            :lazy="true"
-          />
+          <VueSlider class="slider" :disabled="!enabled" :data="rateCandidates" :height="4" v-model="rate"
+            tooltip="hover" :lazy="true" />
         </div>
         <div class="input-wrapper">
           <div class="row">
@@ -79,177 +68,54 @@
               {{ volume }}<span v-if="volume == volumeDefault">（既定）</span>
             </div>
           </div>
-          <VueSlider
-            class="slider"
-            :disabled="!enabled"
-            :data="volumeCandidates"
-            :height="4"
-            :max="1"
-            v-model="volume"
-            tooltip="hover"
-            :lazy="true"
-          />
+          <VueSlider class="slider" :disabled="!enabled" :data="volumeCandidates" :height="4" :max="1" v-model="volume"
+            tooltip="hover" :lazy="true" />
         </div>
       </div>
     </div>
     <div class="section">
       <div class="input-label section-heading">
         <label>振り分け設定</label>
-        <button
-          class="button--text section-heading-button"
-          :disabled="!enabled"
-          @click="resetAssignment"
-        >
+        <button class="button--text section-heading-button" :disabled="!enabled" @click="resetAssignment">
           設定リセット
         </button>
       </div>
       <div class="input-container">
-        <div class="input-wrapper voice">
+        <div class="input-wrapper">
+          <!-- system -->
           <div class="row input-label">
             <label for="system-select">システムメッセージ</label>
-            <button
-              class="button button--secondary"
-              :disabled="!enabled"
-              @click="testSpeechPlay(system, 'system')"
-            >
-              <i class="icon-speaker"></i>
-              読み上げテスト
-            </button>
           </div>
-          <div class="voice">
-            <multiselect
-              class="voice"
-              id="system-select"
-              v-model="system"
-              :options="synthIds"
-              :allow-empty="false"
-              :custom-label="synthName"
-              :placeholder="$t('settings.listPlaceholder')"
-              :data-type="system"
-            >
-              <template slot="option" slot-scope="o">
-                {{ synthName(o.option) }}<span v-if="o.option == systemDefault">（既定）</span>
+          <div style="display: flex; gap:8px; align-items: center;  ">
+            <v-select :clearable="false" :searchable="false" class="vselect" style="flex: 1;" id="system-select"
+              v-model="system" :options="synthesizers" :reduce="item => item.id">
+              <template v-slot:option="p">
+                <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
               </template>
-            </multiselect>
-          </div>
+              <template v-slot:selected-option="p">
+                <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
+              </template>
+            </v-select>
 
-          <div v-if="system === 'voicevox'" style="display: flex; gap: 10px">
-            <div style="flex-grow: 1">
-              VOICEVOX 音声
-              <multiselect
-                v-if="voicevoxItems.length"
-                v-model="voicevoxSystemItem"
-                :options="voicevoxItems"
-                label="name"
-                trackBy="id"
-                :allow-empty="false"
-                :placeholder="$t('settings.listPlaceholder')"
-              />
+            <div v-if="system == 'voicevox'" style="flex: 1;">
+              <v-select v-if="voicevoxItems.length" :clearable="false" :searchable="false" class="vselect"
+                v-model="voicevoxSystemItem" :options="voicevoxItems">
+                <template v-slot:option="p">
+                  <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
+                </template>
+                <template v-slot:selected-option="p">
+                  <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
+                </template>
+              </v-select>
               <span v-else>リストが取得できません</span>
             </div>
-            <img style="height: 60px" :src="voicevoxSystemIcon" />
-            <VueSlider
-              class="slider"
-              v-model="voicevoxSystemSpeed"
-              :min="0.5"
-              :max="3"
-              tooltip="none"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="input-container">
-        <div class="input-wrapper voice">
-          <div class="row input-label">
-            <label for="normal-select">視聴者コメント</label>
-            <button
-              class="button button--secondary"
-              :disabled="!enabled"
-              @click="testSpeechPlay(normal, 'normal')"
-            >
+
+            <button class="button button--secondary" :disabled="!enabled" @click="testSpeechPlay(system, 'system')">
               <i class="icon-speaker"></i>
-              読み上げテスト
             </button>
           </div>
-          <div class="voice">
-            <multiselect
-              id="normal-select"
-              v-model="normal"
-              :options="synthIds"
-              :allow-empty="false"
-              :custom-label="synthName"
-              :placeholder="$t('settings.listPlaceholder')"
-              :data-type="normal"
-            >
-              <template slot="option" slot-scope="o">
-                {{ synthName(o.option) }}<span v-if="o.option == normalDefault">（既定）</span>
-              </template>
-            </multiselect>
-          </div>
-
-          <div v-if="normal === 'voicevox'" style="display: flex; gap: 10px">
-            <div style="flex-grow: 1">
-              VOICEVOX 音声
-              <multiselect
-                v-if="voicevoxItems.length"
-                v-model="voicevoxNormalItem"
-                :options="voicevoxItems"
-                label="name"
-                trackBy="id"
-                :allow-empty="false"
-                :placeholder="$t('settings.listPlaceholder')"
-              />
-              <span v-else>リストが取得できません(DLか起動を案内)</span>
-            </div>
-            <img style="height: 60px" :src="voicevoxNormalIcon" />
-          </div>
-        </div>
-      </div>
-      <div class="input-container">
-        <div class="input-wrapper voice">
-          <div class="row input-label">
-            <label for="operator-select">放送者コメント</label>
-            <button
-              class="button button--secondary"
-              :disabled="!enabled"
-              @click="testSpeechPlay(operator, 'operator')"
-            >
-              <i class="icon-speaker"></i>
-              読み上げテスト
-            </button>
-          </div>
-          <div class="voice">
-            <multiselect
-              id="operator-select"
-              v-model="operator"
-              :options="synthIds"
-              :allow-empty="false"
-              :custom-label="synthName"
-              :placeholder="$t('settings.listPlaceholder')"
-              :data-type="operator"
-            >
-              <template slot="option" slot-scope="o">
-                {{ synthName(o.option) }}<span v-if="o.option == operatorDefault">（既定）</span>
-              </template>
-            </multiselect>
-          </div>
-
-          <div v-if="operator === 'voicevox'" style="display: flex; gap: 10px">
-            <div style="flex-grow: 1">
-              VOICEVOX 音声
-              <multiselect
-                v-if="voicevoxItems.length"
-                v-model="voicevoxOperatorItem"
-                :options="voicevoxItems"
-                label="name"
-                trackBy="id"
-                :allow-empty="false"
-                :placeholder="$t('settings.listPlaceholder')"
-              />
-              <span v-else>リストが取得できません</span>
-            </div>
-            <img style="height: 60px" :src="voicevoxOperatorIcon" />
-          </div>
+          <!--normal -->視聴者コメント
+          <!-- operator -->放送者コメント
         </div>
       </div>
     </div>
@@ -263,26 +129,19 @@
           <div class="input-label">
             <label>Method</label>
           </div>
-          <multiselect
-            v-model="httpRelationMethod"
-            :options="httpRelationMethods"
-            label="text"
-            trackBy="value"
-            :allow-empty="false"
-            :placeholder="$t('settings.listPlaceholder')"
-          >
-          </multiselect>
+          <multiselect v-model="httpRelationMethod" :options="httpRelationMethods" label="text" trackBy="value"
+            :allow-empty="false" :placeholder="$t('settings.listPlaceholder')"></multiselect>
         </div>
+
+        <div class="input-wrapper"></div>
+
         <div class="input-wrapper" v-if="httpRelationMethod.value !== ''">
           <div class="input-label">
             <label>URL</label>
           </div>
           <input type="text" v-model="httpRelationUrl" />
         </div>
-        <div
-          class="input-wrapper"
-          v-if="httpRelationMethod.value !== '' && httpRelationMethod.value !== 'GET'"
-        >
+        <div class="input-wrapper" v-if="httpRelationMethod.value !== '' && httpRelationMethod.value !== 'GET'">
           <div class="input-label">
             <label>Body</label>
           </div>
@@ -300,8 +159,52 @@
 </template>
 
 <script lang="ts" src="./CommentSettings.vue.ts"></script>
-<style lang="less" scoped>
+<style lang="less">
 @import url('../styles/index');
+
+.voption {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  max-width: 160px;
+}
+
+.vselect {
+  margin-right: 2px;
+
+  .vs__dropdown-toggle {
+    align-items: center;
+    height: 48px;
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border-light);
+
+    &:hover {
+      border-color: var(--color-border-accent);
+    }
+
+    &:focus {
+      background: var(--color-input-bg);
+      border-color: var(--color-border-accent);
+      box-shadow: none;
+    }
+  }
+
+  .vs__selected {
+    color: var(--color-text);
+  }
+
+  .vs__search {
+    background: transparent;
+  }
+
+  .vs__dropdown-menu {
+    background: var(--color-bg-primary);
+  }
+
+  .vs__open-indicator {
+    fill: var(--color-text);
+  }
+}
 
 .section-heading {
   display: flex;
@@ -353,7 +256,7 @@
 }
 
 .button {
-  & + & {
+  &+& {
     margin-left: 8px;
   }
 }

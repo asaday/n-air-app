@@ -158,5 +158,7 @@
   "stylelint.validate": ["css", "less", "vue"],
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar" 
 }
