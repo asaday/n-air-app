@@ -83,16 +83,16 @@
       <div class="input-container">
         <div class="input-wrapper">
           <!-- system -->
-          <div class="row input-label">
+          <div class="input-label">
             <label for="system-select">システムメッセージ</label>
           </div>
           <div style="display: flex; gap:8px; align-items: center;  ">
             <v-select :clearable="false" :searchable="false" class="vselect" style="flex: 1;" id="system-select"
               v-model="system" :options="synthesizers" :reduce="item => item.id">
-              <template v-slot:option="p">
+              <template v-slot:selected-option="p">
                 <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
               </template>
-              <template v-slot:selected-option="p">
+              <template v-slot:option="p">
                 <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
               </template>
             </v-select>
@@ -100,10 +100,10 @@
             <div v-if="system == 'voicevox'" style="flex: 1;">
               <v-select v-if="voicevoxItems.length" :clearable="false" :searchable="false" class="vselect"
                 v-model="voicevoxSystemItem" :options="voicevoxItems">
-                <template v-slot:option="p">
+                <template v-slot:selected-option="p">
                   <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
                 </template>
-                <template v-slot:selected-option="p">
+                <template v-slot:option="p">
                   <div class="voption"> <img :src="p.url" style="height: 32px" /> <span>{{ p.name }}</span> </div>
                 </template>
               </v-select>
@@ -159,17 +159,17 @@
 </template>
 
 <script lang="ts" src="./CommentSettings.vue.ts"></script>
-<style lang="less">
+<style lang="less" scoped>
 @import url('../styles/index');
 
-.voption {
+/deep/.voption {
   display: flex;
   gap: 16px;
   align-items: center;
   max-width: 160px;
 }
 
-.vselect {
+/deep/.vselect {
   margin-right: 2px;
 
   .vs__dropdown-toggle {
@@ -258,78 +258,6 @@
 .button {
   &+& {
     margin-left: 8px;
-  }
-}
-
-.voice {
-  .multiselect {
-    height: 64px;
-    margin-bottom: 8px;
-  }
-
-  & /deep/ .multiselect__tags {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-    box-shadow: inset 0 0 0 1px var(--color-border-light);
-  }
-
-  & /deep/ [data-type='webSpeech'] .multiselect__tags {
-    background: url('../../media/images/windows_bg.png') center no-repeat;
-    background-size: 100% auto;
-  }
-
-  & /deep/ [data-type='nVoice'] .multiselect__tags {
-    background: url('../../media/images/nvoice_bg.png') center no-repeat;
-    background-size: 100% auto;
-
-    &::after {
-      position: absolute;
-      top: -64px;
-      right: -37px;
-      width: 414px;
-      height: 415px;
-      content: '';
-      background: url('../../media/images/nvoice.png') center no-repeat;
-      filter: drop-shadow(4px 4px 12px rgb(@black 0.3));
-      background-size: 100% auto;
-      opacity: 0.9;
-    }
-  }
-
-  & /deep/ [data-type='voicevox'] .multiselect__tags {
-    background: url('../../media/images/nvoice_bg.png') center no-repeat;
-    background-size: 100% auto;
-  }
-
-  & /deep/ .multiselect__select {
-    line-height: 64px;
-
-    &::before {
-      right: 16px;
-      color: var(--color-text-light);
-    }
-  }
-
-  & /deep/ .multiselect__input {
-    height: 64px;
-    padding: 0 16px;
-    color: var(--color-text-light);
-    text-shadow: 0 0 4px rgb(@black 0.25);
-    background: transparent;
-    border: none;
-
-    &:hover {
-      border-color: var(--color-border-light);
-    }
-
-    &:focus {
-      background: var(--color-input-bg);
-    }
-  }
-
-  & /deep/ .multiselect__content {
-    top: 8px;
   }
 }
 </style>
