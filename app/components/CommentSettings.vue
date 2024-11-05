@@ -130,7 +130,19 @@
             <label>Method</label>
           </div>
           <multiselect v-model="httpRelationMethod" :options="httpRelationMethods" label="text" trackBy="value"
-            :allow-empty="false" :placeholder="$t('settings.listPlaceholder')"></multiselect>
+            :allow-empty="false" :placeholder="$t('settings.listPlaceholder')">
+
+            <template slot="singleLabel" slot-scope="p">
+              <div class="voption"> <img src="bundles/media/tsumugi.png" style="height: 32px" /> <span>{{ p.option.text
+                  }}</span> </div>
+            </template>
+
+            <template slot="option" slot-scope="p">
+              <div class="voption"> <img src="bundles/media/tsumugi.png" style="height: 32px" /> <span>{{ p.option.text
+                  }}</span> </div>
+            </template>
+
+          </multiselect>
         </div>
 
         <div class="input-wrapper"></div>
