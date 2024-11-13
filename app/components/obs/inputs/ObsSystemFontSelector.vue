@@ -21,6 +21,11 @@
               {{ props.option.family }}
             </span>
           </template>
+          <template slot="singleLabel" slot-scope="props">
+            <span :style="{ fontFamily: props.option.family }">
+              {{ props.option.family }}
+            </span>
+          </template>
           <template slot="noResult">
             {{ $t('settings.itemNotFoundMessage') }}
           </template>
@@ -44,6 +49,11 @@
           :searchable="false"
         >
           <template slot="option" slot-scope="props">
+            <span :style="styleForFont(props.option)">
+              {{ props.option.style }}
+            </span>
+          </template>
+          <template slot="singleLabel" slot-scope="props">
             <span :style="styleForFont(props.option)">
               {{ props.option.style }}
             </span>
